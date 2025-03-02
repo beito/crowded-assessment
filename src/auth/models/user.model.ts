@@ -1,4 +1,6 @@
-import { Table, Column, Model } from 'sequelize-typescript';
+import { Table, Column, Model, HasMany } from 'sequelize-typescript';
+import { InstallmentPlan } from '../../installments/models/installment-plan.model';
+import { Payment } from '../../payments/models/payment.model';
 
 @Table({ tableName: 'users', timestamps: false })
 export class User extends Model {
@@ -10,4 +12,10 @@ export class User extends Model {
 
   @Column
   password: string;
+
+  @HasMany(() => InstallmentPlan)
+  installmentPlans: InstallmentPlan[];
+
+  @HasMany(() => Payment)
+  payments: Payment[];
 }

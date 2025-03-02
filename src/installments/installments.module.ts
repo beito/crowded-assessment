@@ -9,5 +9,6 @@ import { InstallmentPlan } from './models/installment-plan.model';
   imports: [SequelizeModule.forFeature([Installment, InstallmentPlan])],
   controllers: [InstallmentsController],
   providers: [InstallmentsService],
+  exports: [InstallmentsService],
 })
 export class InstallmentsModule {}

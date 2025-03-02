@@ -1,5 +1,6 @@
-import { Table, Column, Model, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Installment } from '../../installments/models/installment.model';
+import { User } from '../../auth/models/user.model';
 
 @Table({ tableName: 'payments', timestamps: false })
 export class Payment extends Model {
@@ -10,12 +11,19 @@ export class Payment extends Model {
   @Column
   installmentId: number;
 
+  @ForeignKey(() => User)
   @Column
-  paymentMethod: string; // "ACH" o "Card"
+  userId: number;
+
+  @Column
+  paymentMethod: string;
 
   @Column
   amount: number;
 
   @Column
   paidAt: Date;
+
+  @BelongsTo(() => User)
+  user: User;
 }

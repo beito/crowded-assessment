@@ -17,6 +17,9 @@ export class Installment extends Model {
   @Column
   amount: number;
 
+  @Column
+  remainingAmount: number;
+
   @HasMany(() => Payment)
   payments: Payment[];
 }
