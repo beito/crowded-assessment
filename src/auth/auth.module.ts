@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -17,7 +17,18 @@ import { User } from './models/user.model';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    {
+      provide: 'MODULE_LOGGER',
+      useFactory: () => {
+        const logger = new Logger(AuthModule.name);
+        logger.log('AuthModule initialized');
+        return logger;
+      },
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
