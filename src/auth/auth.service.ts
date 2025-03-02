@@ -1,22 +1,24 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { User } from './models/user.model';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
-
-  private readonly mockUser = {
-    id: 1,
-    email: 'mockedmail@test.com',
-    password: 'mockedpass123',
-  };
+  constructor(
+    @InjectModel(User) private userModel: typeof User,
+    private jwtService: JwtService
+  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    if (email === this.mockUser.email && password === this.mockUser.password) {
-      const { password, ...result } = this.mockUser;
-      return result;
+    const user = await this.userModel.findOne({ where: { email } });
+
+    if (!user || user.password !== password) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    throw new UnauthorizedException('Invalid credentials');
+
+    const { password: _, ...result } = user.toJSON();
+    return result;
   }
 
   async login(user: any) {
