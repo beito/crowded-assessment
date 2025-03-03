@@ -39,18 +39,28 @@ describe('PaymentsService', () => {
 
   it('should create a payment and register it in installments', async () => {
     const paymentData = { installmentId: 1, amount: 50, paymentMethod: 'Card' };
-    const payment = await service.createPayment(paymentData);
-
-    expect(payment).toEqual({ ...paymentData, paymentId: 1 });
+    const userId = 1;
+  
+    const payment = await service.createPayment(paymentData, userId);
+  
+    expect(payment).toMatchObject({
+      ...paymentData,
+      paymentId: 1,
+      userId,
+    });
+  
     expect(mockInstallmentsService.registerPayment).toHaveBeenCalledWith(1, 50);
-  });
-
+  });  
+  
   it('should log when an installment plan is fully paid', async () => {
     mockInstallmentsService.registerPayment.mockResolvedValueOnce(true);
-
+  
     const paymentData = { installmentId: 1, amount: 100, paymentMethod: 'Card' };
-    await service.createPayment(paymentData);
-
+    const userId = 1;
+  
+    await service.createPayment(paymentData, userId);
+  
     expect(mockInstallmentsService.registerPayment).toHaveBeenCalledWith(1, 100);
   });
+  
 });

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Service } from './models/service.model';
+import { CreationAttributes } from 'sequelize';
 
 @Injectable()
 export class ServiceService {
@@ -17,8 +18,12 @@ export class ServiceService {
       this.logger.warn(`Invalid service data: ${JSON.stringify(data)}`);
       throw new NotFoundException('Service name and price are required.');
     }
-
+  
     this.logger.log(`Creating service: ${data.name}`);
-    return this.serviceModel.create(data);
+  
+    return this.serviceModel.create({
+      name: data.name,
+      price: data.price,
+    } as CreationAttributes<Service>);
   }
 }

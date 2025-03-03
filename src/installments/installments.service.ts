@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, Logger } from '@nes
 import { InjectModel } from '@nestjs/sequelize';
 import { Installment } from './models/installment.model';
 import { InstallmentPlan } from './models/installment-plan.model';
+import { CreationAttributes } from 'sequelize';
 
 @Injectable()
 export class InstallmentsService {
@@ -17,17 +18,46 @@ export class InstallmentsService {
       this.logger.warn(`Invalid installment data received`);
       throw new BadRequestException('Invalid installment data');
     }
-
+  
     this.logger.log(`Creating installment plan for service ${data.serviceId}`);
-    return this.installmentPlanModel.create(data);
+  
+    if (!data.userId) {
+      this.logger.warn(`Installment plan must be linked to a user.`);
+      throw new BadRequestException('User ID is required.');
+    }
+  
+    const installmentPlan = await this.installmentPlanModel.create({
+      serviceId: data.serviceId,
+      totalAmount: data.totalAmount,
+      userId: data.userId,
+      isPaid: false,
+    } as CreationAttributes<InstallmentPlan>);
+  
+    const installments = data.installments.map(installment => ({
+      installmentPlanId: installmentPlan.installmentPlanId,
+      userId: data.userId,
+      dueDate: installment.dueDate,
+      amount: installment.amount,
+      remainingAmount: installment.amount,
+    }));
+  
+    await this.installmentModel.bulkCreate(installments as any[]);
+  
+    return installmentPlan;
   }
+  
 
   async getAllInstallments() {
-    return this.installmentPlanModel.findAll();
+    return this.installmentPlanModel.findAll({
+      include: [Installment],
+    });
   }
 
   async getCompletedInstallments() {
-    return this.installmentPlanModel.findAll({ where: { isPaid: true } });
+    return this.installmentPlanModel.findAll({
+      where: { isPaid: true },
+      include: [Installment],
+    });
   }
 
   async registerPayment(installmentId: number, amount: number): Promise<boolean> {

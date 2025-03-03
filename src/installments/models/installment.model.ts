@@ -1,25 +1,32 @@
-import { Table, Column, Model, ForeignKey, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, ForeignKey, HasMany, BelongsTo, DataType } from 'sequelize-typescript';
 import { InstallmentPlan } from './installment-plan.model';
 import { Payment } from '../../payments/models/payment.model';
 
 @Table({ tableName: 'installments', timestamps: false })
-export class Installment extends Model {
-  @Column({ primaryKey: true, autoIncrement: true })
-  installmentId: number;
+export class Installment extends Model<Installment> {
+  @Column({ 
+    type: DataType.INTEGER, 
+    primaryKey: true, 
+    autoIncrement: true 
+  })
+  declare installmentId: number;
 
   @ForeignKey(() => InstallmentPlan)
-  @Column
-  installmentPlanId: number;
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  declare installmentPlanId: number;
 
-  @Column
-  dueDate: Date;
+  @Column({ type: DataType.DATE, allowNull: false })
+  declare dueDate: Date;
 
-  @Column
-  amount: number;
+  @Column({ type: DataType.FLOAT, allowNull: false })
+  declare amount: number;
 
-  @Column
-  remainingAmount: number;
+  @Column({ type: DataType.FLOAT, allowNull: false })
+  declare remainingAmount: number;
 
   @HasMany(() => Payment)
-  payments: Payment[];
+  declare payments: Payment[];
+
+  @BelongsTo(() => InstallmentPlan)
+  declare installmentPlan: InstallmentPlan;
 }

@@ -1,17 +1,21 @@
-import { Table, Column, Model, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, DataType } from 'sequelize-typescript';
 import { InstallmentPlan } from '../../installments/models/installment-plan.model';
 
 @Table({ tableName: 'services', timestamps: false })
-export class Service extends Model {
-  @Column({ primaryKey: true, autoIncrement: true })
-  serviceId: number;
+export class Service extends Model<Service> {
+  @Column({ 
+    type: DataType.INTEGER, 
+    primaryKey: true, 
+    autoIncrement: true 
+  })
+  declare serviceId: number;
 
-  @Column
-  name: string;
+  @Column({ type: DataType.STRING, allowNull: false })
+  declare name: string;
 
-  @Column
-  price: number;
+  @Column({ type: DataType.FLOAT, allowNull: false })
+  declare price: number;
 
   @HasMany(() => InstallmentPlan)
-  installmentPlans: InstallmentPlan[];
+  declare installmentPlan: InstallmentPlan[];
 }

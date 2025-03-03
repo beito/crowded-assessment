@@ -1,27 +1,37 @@
-import { Table, Column, Model, ForeignKey, HasMany, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, Model, ForeignKey, HasMany, BelongsTo, DataType } from 'sequelize-typescript';
 import { Service } from '../../service/models/service.model';
 import { Installment } from './installment.model';
 import { User } from '../../auth/models/user.model';
 
-@Table({ tableName: 'installment_plans', timestamps: false })
-export class InstallmentPlan extends Model {
-  @Column({ primaryKey: true, autoIncrement: true })
-  installmentPlanId: number;
+@Table({ tableName: 'installment_plan', timestamps: false })
+export class InstallmentPlan extends Model<InstallmentPlan> {
+  @Column({ 
+    type: DataType.INTEGER, 
+    primaryKey: true, 
+    autoIncrement: true 
+  })
+  declare installmentPlanId: number;
 
   @ForeignKey(() => Service)
-  @Column
-  serviceId: number;
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  declare serviceId: number;
 
   @ForeignKey(() => User)
-  @Column
-  userId: number;
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  declare userId: number;
 
-  @Column
-  totalAmount: number;
+  @Column({ type: DataType.FLOAT, allowNull: false })
+  declare totalAmount: number;
 
-  @Column({ defaultValue: false })
-  isPaid: boolean;
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  declare isPaid: boolean;
 
   @HasMany(() => Installment)
-  installments: Installment[];
+  declare installments: Installment[];
+
+  @BelongsTo(() => User)
+  declare user: User;
+
+  @BelongsTo(() => Service)
+  declare service: Service;
 }

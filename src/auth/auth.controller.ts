@@ -10,6 +10,9 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: any) {
+    console.log("Login: ");
+    console.log(body);
+
     this.logger.log(`Login attempt for email: ${body.email}`);
 
     const { error, value } = LoginDtoSchema.validate(body);

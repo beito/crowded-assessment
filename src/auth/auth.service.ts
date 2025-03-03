@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, NotFoundException, Logger } from '@n
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.password !== password) {
+    if (!await bcrypt.compare(password, user.password)) {
       this.logger.warn(`Invalid password attempt for email: ${email}`);
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -30,10 +31,10 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { sub: user.id, email: user.email };
-    this.logger.log(`User logged in: ${user.email}`);
+    const payload = { sub: user.userId, email: user.email };
+    this.logger.log(`User logged in: ${user.email} (ID: ${user.userId})`);
     return {
       access_token: this.jwtService.sign(payload),
     };
-  }
+  }  
 }

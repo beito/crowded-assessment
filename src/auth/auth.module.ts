@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from './models/user.model';
 
 @Module({
@@ -20,6 +21,7 @@ import { User } from './models/user.model';
   providers: [
     AuthService,
     JwtStrategy,
+    JwtAuthGuard,
     {
       provide: 'MODULE_LOGGER',
       useFactory: () => {
@@ -29,6 +31,6 @@ import { User } from './models/user.model';
       },
     },
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule, JwtAuthGuard],
 })
 export class AuthModule {}

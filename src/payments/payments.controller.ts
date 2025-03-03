@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Logger, UseGuards, Request } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDtoSchema } from './dtos/create-payment.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('payments')
 export class PaymentsController {
@@ -8,8 +9,9 @@ export class PaymentsController {
 
   constructor(private paymentsService: PaymentsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async createPayment(@Body() body: any) {
+  async createPayment(@Body() body: any, @Request() req) {
     this.logger.log(`Received payment request: ${JSON.stringify(body)}`);
 
     const { error, value } = CreatePaymentDtoSchema.validate(body);
@@ -18,6 +20,13 @@ export class PaymentsController {
       return { message: 'Invalid data', details: error.details };
     }
 
-    return this.paymentsService.createPayment(value);
+    const userId = req.user?.userId;
+    if (!userId) {
+      this.logger.warn(`Missing userId in token`);
+      return { message: 'Server error' };
+    }
+
+    this.logger.log(`Extracted userId from token: ${userId}`);
+    return this.paymentsService.createPayment(value, userId);
   }
 }
