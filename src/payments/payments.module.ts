@@ -3,10 +3,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { Payment } from './models/payment.model';
+import { Installment } from '../installments/models/installment.model';
 import { InstallmentsModule } from '../installments/installments.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Payment]), InstallmentsModule],
+  imports: [SequelizeModule.forFeature([Payment, Installment]), InstallmentsModule],
   controllers: [PaymentsController],
   providers: [
     PaymentsService,
