@@ -14,7 +14,7 @@ export class InstallmentsService {
   ) {}
 
   async createInstallment(data: any) {
-    if (!data.serviceId || !data.totalAmount || !data.installments || data.installments.length === 0) {
+    if (!data.serviceId || !data.totalAmount || !data.installmentsCount) {
       this.logger.warn(`Invalid installment data received`);
       throw new BadRequestException('Invalid installment data');
     }
@@ -32,13 +32,16 @@ export class InstallmentsService {
       userId: data.userId,
       isPaid: false,
     } as CreationAttributes<InstallmentPlan>);
+
+    const installmentAmount = data.totalAmount / data.installmentsCount;
+    const dueDates = this.generateDueDates(data.installmentsCount);
   
-    const installments = data.installments.map(installment => ({
+    const installments = dueDates.map((dueDate) => ({
       installmentPlanId: installmentPlan.installmentPlanId,
       userId: data.userId,
-      dueDate: installment.dueDate,
-      amount: installment.amount,
-      remainingAmount: installment.amount,
+      dueDate: dueDate,
+      amount: installmentAmount,
+      remainingAmount: installmentAmount,
     }));
   
     await this.installmentModel.bulkCreate(installments as any[]);
@@ -46,6 +49,15 @@ export class InstallmentsService {
     return installmentPlan;
   }
   
+  private generateDueDates(count: number): Date[] {
+    const dates: Date[] = [];
+    let currentDate = new Date();
+    for (let i = 0; i < count; i++) {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      dates.push(new Date(currentDate));
+    }
+    return dates;
+  }
 
   async getAllInstallments() {
     return this.installmentPlanModel.findAll({

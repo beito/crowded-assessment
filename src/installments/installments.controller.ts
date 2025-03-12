@@ -26,7 +26,6 @@ export class InstallmentsController {
       return { message: 'server error' };
     }
 
-
     this.logger.log(`Extracted userId from token: ${userId}`);
     return this.installmentsService.createInstallment({ ...value, userId });
   }
