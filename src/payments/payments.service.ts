@@ -20,16 +20,22 @@ export class PaymentsService {
     userId: number
   ) {
     this.logger.log(`Processing payment for installment ${data.installmentId}`);
-  
+
     const installment = await this.installmentModel.findByPk(data.installmentId);
     if (!installment) {
       this.logger.warn(`Attempt to pay non-existing installment ${data.installmentId}`);
       throw new NotFoundException('Installment not found');
     }
   
-    if (data.amount > installment.remainingAmount) {
-      this.logger.warn(`Overpayment attempt on installment ${data.installmentId}`);
-      throw new BadRequestException('Payment exceeds remaining amount');
+    const totalRemaining = await this.installmentModel.sum('remainingAmount', {
+      where: { installmentPlanId: installment.installmentPlanId },
+    });
+
+    if (data.amount !== installment.amount && data.amount !== totalRemaining) {
+      this.logger.warn(`Invalid payment amount: ${data.amount} for installment ${data.installmentId}`);
+      throw new BadRequestException(
+        'Payment must match either an installment amount or the total remaining balance'
+      );
     }
   
     const payment = await this.paymentModel.create({
