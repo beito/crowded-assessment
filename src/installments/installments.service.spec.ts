@@ -3,68 +3,96 @@ import { InstallmentsService } from './installments.service';
 import { getModelToken } from '@nestjs/sequelize';
 import { Installment } from './models/installment.model';
 import { InstallmentPlan } from './models/installment-plan.model';
+import { BadRequestException } from '@nestjs/common';
 
 describe('InstallmentsService', () => {
   let service: InstallmentsService;
-  let mockInstallmentModel: typeof Installment;
-  let mockInstallmentPlanModel: typeof InstallmentPlan;
+
+  const mockInstallmentModel = {
+    bulkCreate: jest.fn().mockResolvedValue([]),
+  };
+
+  const mockInstallmentPlanModel = {
+    create: jest.fn().mockResolvedValue({
+      installmentPlanId: 1,
+      serviceId: 1,
+      totalAmount: 200,
+      userId: 1,
+      isPaid: false,
+    }),
+    findAll: jest.fn().mockResolvedValue([
+      { installmentPlanId: 1, isPaid: false },
+      { installmentPlanId: 2, isPaid: true },
+    ]),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InstallmentsService,
-        {
-          provide: getModelToken(Installment),
-          useValue: {
-            findByPk: jest.fn(),
-            save: jest.fn(),
-          },
-        },
-        {
-          provide: getModelToken(InstallmentPlan),
-          useValue: {
-            findByPk: jest.fn(),
-            save: jest.fn(),
-            findAll: jest.fn(),
-          },
-        },
+        { provide: getModelToken(Installment), useValue: mockInstallmentModel },
+        { provide: getModelToken(InstallmentPlan), useValue: mockInstallmentPlanModel },
       ],
     }).compile();
 
     service = module.get<InstallmentsService>(InstallmentsService);
-    mockInstallmentModel = module.get<typeof Installment>(getModelToken(Installment));
-    mockInstallmentPlanModel = module.get<typeof InstallmentPlan>(getModelToken(InstallmentPlan));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should return all installment plans', async () => {
-    const mockPlans = [{ installmentPlanId: 1 }, { installmentPlanId: 2 }];
-    mockInstallmentPlanModel.findAll = jest.fn().mockResolvedValue(mockPlans);
+  it('should create an installment plan correctly', async () => {
+    const installmentData = {
+      serviceId: 1,
+      totalAmount: 200,
+      installmentsCount: 2,
+      userId: 1,
+    };
 
+    const result = await service.createInstallment(installmentData);
+
+    expect(result).toEqual({
+      installmentPlanId: 1,
+      serviceId: 1,
+      totalAmount: 200,
+      userId: 1,
+      isPaid: false,
+    });
+
+    expect(mockInstallmentPlanModel.create).toHaveBeenCalledWith({
+      serviceId: 1,
+      totalAmount: 200,
+      userId: 1,
+      isPaid: false,
+    });
+    expect(mockInstallmentModel.bulkCreate).toHaveBeenCalled();
+  });
+
+  it('should throw BadRequestException if installment data is invalid', async () => {
+    await expect(service.createInstallment({} as any)).rejects.toThrow(BadRequestException);
+  });
+
+  it('should return all installment plans', async () => {
     const result = await service.getAllInstallments();
 
-    expect(result).toEqual(mockPlans);
+    expect(result).toEqual([
+      { installmentPlanId: 1, isPaid: false },
+      { installmentPlanId: 2, isPaid: true },
+    ]);
+
     expect(mockInstallmentPlanModel.findAll).toHaveBeenCalled();
   });
 
-  it('should mark a plan as paid if all installments are paid', async () => {
-    const installment = { installmentId: 1, remainingAmount: 50, save: jest.fn() };
-    const plan = {
-      installmentPlanId: 1,
-      isPaid: false,
-      installments: [{ remainingAmount: 0 }],
-      save: jest.fn(),
-    };
+  it('should return only completed installment plans', async () => {
+    mockInstallmentPlanModel.findAll.mockResolvedValueOnce([{ installmentPlanId: 2, isPaid: true }]);
 
-    mockInstallmentModel.findByPk = jest.fn().mockResolvedValue(installment);
-    mockInstallmentPlanModel.findByPk = jest.fn().mockResolvedValue(plan);
+    const result = await service.getCompletedInstallments();
 
-    await service.registerPayment(1, 50);
-
-    expect(plan.isPaid).toBe(true);
-    expect(plan.save).toHaveBeenCalled();
+    expect(result).toEqual([{ installmentPlanId: 2, isPaid: true }]);
+    expect(mockInstallmentPlanModel.findAll).toHaveBeenCalledWith({
+      where: { isPaid: true },
+      include: [Installment],
+    });
   });
 });
