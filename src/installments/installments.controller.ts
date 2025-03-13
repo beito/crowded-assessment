@@ -1,6 +1,17 @@
-import { Controller, Post, Get, Body, Logger, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Logger,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { InstallmentsService } from './installments.service';
-import { CreateInstallmentDtoSchema, CreateInstallmentDto } from './dtos/create-installment.dto';
+import {
+  CreateInstallmentDtoSchema,
+  CreateInstallmentDto,
+} from './dtos/create-installment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('installments')
@@ -12,7 +23,9 @@ export class InstallmentsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async createInstallment(@Body() body: CreateInstallmentDto, @Request() req) {
-    this.logger.log(`Received request to create installment: ${JSON.stringify(body)}`);
+    this.logger.log(
+      `Received request to create installment: ${JSON.stringify(body)}`,
+    );
 
     const { error, value } = CreateInstallmentDtoSchema.validate(body);
     if (error) {

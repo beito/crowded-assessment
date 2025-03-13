@@ -11,7 +11,8 @@ export class InstallmentsService {
 
   constructor(
     @InjectModel(Installment) private installmentModel: typeof Installment,
-    @InjectModel(InstallmentPlan) private installmentPlanModel: typeof InstallmentPlan
+    @InjectModel(InstallmentPlan)
+    private installmentPlanModel: typeof InstallmentPlan,
   ) {}
 
   async createInstallment(data: CompleteCreateInstallmentDto) {
@@ -19,14 +20,14 @@ export class InstallmentsService {
       this.logger.warn(`Invalid installment data received`);
       throw new BadRequestException('Invalid installment data');
     }
-  
+
     this.logger.log(`Creating installment plan for service ${data.serviceId}`);
-  
+
     if (!data.userId) {
       this.logger.warn(`Installment plan must be linked to a user.`);
       throw new BadRequestException('User ID is required.');
     }
-  
+
     const installmentPlan = await this.installmentPlanModel.create({
       serviceId: data.serviceId,
       totalAmount: data.totalAmount,
@@ -36,7 +37,7 @@ export class InstallmentsService {
 
     const installmentAmount = data.totalAmount / data.installmentsCount;
     const dueDates = this.generateDueDates(data.installmentsCount);
-  
+
     const installments = dueDates.map((dueDate) => ({
       installmentPlanId: installmentPlan.installmentPlanId,
       userId: data.userId,
@@ -44,12 +45,12 @@ export class InstallmentsService {
       amount: installmentAmount,
       remainingAmount: installmentAmount,
     }));
-  
+
     await this.installmentModel.bulkCreate(installments as any[]);
-  
+
     return installmentPlan;
   }
-  
+
   private generateDueDates(count: number): Date[] {
     const dates: Date[] = [];
     let currentDate = new Date();

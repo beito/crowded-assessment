@@ -18,9 +18,9 @@ export class ServiceService {
       this.logger.warn(`Invalid service data: ${JSON.stringify(data)}`);
       throw new NotFoundException('Service name and price are required.');
     }
-  
+
     this.logger.log(`Creating service: ${data.name}`);
-  
+
     return this.serviceModel.create({
       name: data.name,
       price: data.price,

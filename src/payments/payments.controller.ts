@@ -1,6 +1,16 @@
-import { Controller, Post, Body, Logger, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Logger,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { CreatePaymentDtoSchema, CreatePaymentDto } from './dtos/create-payment.dto';
+import {
+  CreatePaymentDtoSchema,
+  CreatePaymentDto,
+} from './dtos/create-payment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('payments')

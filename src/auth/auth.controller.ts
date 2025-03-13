@@ -18,7 +18,10 @@ export class AuthController {
       return { message: 'Invalid input', details: error.details };
     }
 
-    const user: AuthenticatedUser = await this.authService.validateUser(value.email, value.password);
+    const user: AuthenticatedUser = await this.authService.validateUser(
+      value.email,
+      value.password,
+    );
     return this.authService.login(user);
   }
 }

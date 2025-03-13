@@ -4,10 +4,10 @@ import { Payment } from '../../payments/models/payment.model';
 
 @Table({ tableName: 'users', timestamps: false })
 export class User extends Model<User> {
-  @Column({ 
-    type: DataType.INTEGER, 
-    primaryKey: true, 
-    autoIncrement: true 
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
   })
   declare userId: number;
 

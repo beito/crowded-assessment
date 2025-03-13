@@ -8,7 +8,13 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, InstallmentsModule, PaymentsModule, ServiceModule],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    InstallmentsModule,
+    PaymentsModule,
+    ServiceModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

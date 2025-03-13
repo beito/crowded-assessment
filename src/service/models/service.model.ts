@@ -3,10 +3,10 @@ import { InstallmentPlan } from '../../installments/models/installment-plan.mode
 
 @Table({ tableName: 'services', timestamps: false })
 export class Service extends Model<Service> {
-  @Column({ 
-    type: DataType.INTEGER, 
-    primaryKey: true, 
-    autoIncrement: true 
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
   })
   declare serviceId: number;
 

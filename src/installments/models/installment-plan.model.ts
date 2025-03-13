@@ -1,14 +1,22 @@
-import { Table, Column, Model, ForeignKey, HasMany, BelongsTo, DataType } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  ForeignKey,
+  HasMany,
+  BelongsTo,
+  DataType,
+} from 'sequelize-typescript';
 import { Service } from '../../service/models/service.model';
 import { Installment } from './installment.model';
 import { User } from '../../auth/models/user.model';
 
 @Table({ tableName: 'installment_plan', timestamps: true })
 export class InstallmentPlan extends Model<InstallmentPlan> {
-  @Column({ 
-    type: DataType.INTEGER, 
-    primaryKey: true, 
-    autoIncrement: true 
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
   })
   declare installmentPlanId: number;
 

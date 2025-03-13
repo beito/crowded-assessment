@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { JwtService } from '@nestjs/jwt';
@@ -11,10 +16,13 @@ export class AuthService {
 
   constructor(
     @InjectModel(User) private userModel: typeof User,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<AuthenticatedUser> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<AuthenticatedUser> {
     const user = await this.userModel.findOne({ where: { email } });
 
     if (!user) {
@@ -22,7 +30,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    if (!await bcrypt.compare(password, user.password)) {
+    if (!(await bcrypt.compare(password, user.password))) {
       this.logger.warn(`Invalid password attempt for email: ${email}`);
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -37,5 +45,5 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
-  }  
+  }
 }

@@ -11,7 +11,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
       password: 'root',
       database: 'nest_installments',
       autoLoadModels: true,
-      synchronize: true
+      synchronize: true,
     }),
   ],
   exports: [SequelizeModule],
