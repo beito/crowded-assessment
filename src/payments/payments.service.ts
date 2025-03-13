@@ -9,7 +9,7 @@ import { Payment } from './models/payment.model';
 import { Installment } from '../installments/models/installment.model';
 import { InstallmentPlan } from '../installments/models/installment-plan.model';
 import { CreatePaymentDto } from './dtos/create-payment.dto';
-import { CreationAttributes } from 'sequelize';
+import { CreationAttributes, Op } from 'sequelize';
 
 @Injectable()
 export class PaymentsService {
@@ -39,11 +39,11 @@ export class PaymentsService {
       throw new NotFoundException('Installment not found');
     }
 
-    const paymentsCount = await this.paymentModel.count({
+    const hasBeenPaid = await this.paymentModel.count({
       where: { installmentId: data.installmentId },
     });
 
-    if (paymentsCount > 0) {
+    if (hasBeenPaid > 0) {
       this.logger.warn(
         `Installment ${data.installmentId} has already been paid.`,
       );
@@ -56,7 +56,11 @@ export class PaymentsService {
 
     const totalInstallments = allInstallments.length;
     const totalPayments = await this.paymentModel.count({
-      where: { installmentId: allInstallments.map((i) => i.installmentId) },
+      where: {
+        installmentId: {
+          [Op.in]: allInstallments.map((i) => i.installmentId),
+        },
+      },
     });
 
     const totalRemaining = totalInstallments - totalPayments;
