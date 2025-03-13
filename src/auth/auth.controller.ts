@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDtoSchema } from './dtos/login.dto';
+import { LoginDtoSchema, LoginDto, AuthenticatedUser } from './dtos/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -9,10 +9,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: any) {
-    console.log("Login: ");
-    console.log(body);
-
+  async login(@Body() body: LoginDto) {
     this.logger.log(`Login attempt for email: ${body.email}`);
 
     const { error, value } = LoginDtoSchema.validate(body);
@@ -21,6 +18,7 @@ export class AuthController {
       return { message: 'Invalid input', details: error.details };
     }
 
-    return this.authService.login(await this.authService.validateUser(value.email, value.password));
+    const user: AuthenticatedUser = await this.authService.validateUser(value.email, value.password);
+    return this.authService.login(user);
   }
 }

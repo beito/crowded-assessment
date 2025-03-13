@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Payment } from './models/payment.model';
 import { Installment } from '../installments/models/installment.model';
 import { InstallmentPlan } from '../installments/models/installment-plan.model';
+import { CreatePaymentDto } from './dtos/create-payment.dto'
 import { CreationAttributes } from 'sequelize';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class PaymentsService {
   ) {}
 
   async createPayment(
-    data: { installmentId: number; amount: number; paymentMethod: string },
+    data: CreatePaymentDto,
     userId: number
   ) {
     this.logger.log(`Processing payment for installment ${data.installmentId}`);

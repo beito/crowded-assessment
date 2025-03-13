@@ -5,3 +5,16 @@ export const CreateInstallmentDtoSchema = Joi.object({
   totalAmount: Joi.number().positive().required(),
   installmentsCount: Joi.number().integer().min(1).required(),
 });
+
+export interface CreateInstallmentDto {
+  serviceId: number;
+  totalAmount: number;
+  installmentsCount: number;
+}
+
+export interface CompleteCreateInstallmentDto {
+  serviceId: number;
+  totalAmount: number;
+  installmentsCount: number;
+  userId: number;
+}

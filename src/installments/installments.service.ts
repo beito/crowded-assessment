@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Installment } from './models/installment.model';
 import { InstallmentPlan } from './models/installment-plan.model';
+import { CompleteCreateInstallmentDto } from './dtos/create-installment.dto';
 import { CreationAttributes } from 'sequelize';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class InstallmentsService {
     @InjectModel(InstallmentPlan) private installmentPlanModel: typeof InstallmentPlan
   ) {}
 
-  async createInstallment(data: any) {
+  async createInstallment(data: CompleteCreateInstallmentDto) {
     if (!data.serviceId || !data.totalAmount || !data.installmentsCount) {
       this.logger.warn(`Invalid installment data received`);
       throw new BadRequestException('Invalid installment data');

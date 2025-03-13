@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Logger, UseGuards, Request } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { CreatePaymentDtoSchema } from './dtos/create-payment.dto';
+import { CreatePaymentDtoSchema, CreatePaymentDto } from './dtos/create-payment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('payments')
@@ -11,7 +11,7 @@ export class PaymentsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createPayment(@Body() body: any, @Request() req) {
+  async createPayment(@Body() body: CreatePaymentDto, @Request() req) {
     this.logger.log(`Received payment request: ${JSON.stringify(body)}`);
 
     const { error, value } = CreatePaymentDtoSchema.validate(body);

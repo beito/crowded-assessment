@@ -3,7 +3,7 @@ import { Service } from '../../service/models/service.model';
 import { Installment } from './installment.model';
 import { User } from '../../auth/models/user.model';
 
-@Table({ tableName: 'installment_plan', timestamps: false })
+@Table({ tableName: 'installment_plan', timestamps: true })
 export class InstallmentPlan extends Model<InstallmentPlan> {
   @Column({ 
     type: DataType.INTEGER, 
@@ -25,6 +25,9 @@ export class InstallmentPlan extends Model<InstallmentPlan> {
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   declare isPaid: boolean;
+
+  @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
+  declare createdAt: Date;
 
   @HasMany(() => Installment)
   declare installments: Installment[];
