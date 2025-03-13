@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticatedUser } from './dtos/login.dto';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
