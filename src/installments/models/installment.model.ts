@@ -21,9 +21,6 @@ export class Installment extends Model<Installment> {
   @Column({ type: DataType.FLOAT, allowNull: false })
   declare amount: number;
 
-  @Column({ type: DataType.FLOAT, allowNull: false })
-  declare remainingAmount: number;
-
   @HasMany(() => Payment)
   declare payments: Payment[];
 
