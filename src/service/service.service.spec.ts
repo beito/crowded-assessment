@@ -51,6 +51,8 @@ describe('ServiceService', () => {
   });
 
   it('should throw NotFoundException when creating a service with invalid data', async () => {
-    await expect(service.createService({ name: '', price: 0 })).rejects.toThrow(NotFoundException);
+    await expect(service.createService({ name: '', price: 0 })).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

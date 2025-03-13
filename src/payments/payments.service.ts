@@ -74,17 +74,21 @@ export class PaymentsService {
       );
     }
 
+    const existingPayments = await Promise.all(
+      allInstallments.map(async (inst) => {
+        const paymentExists = await this.paymentModel.findOne({
+          where: { installmentId: inst.installmentId },
+        });
+        return { installment: inst, isPaid: Boolean(paymentExists) };
+      }),
+    );
+
     if (data.amount === totalRemaining * installmentAmount) {
-      const bulkPayments = allInstallments
-        .filter(
-          (inst) =>
-            !this.paymentModel.findOne({
-              where: { installmentId: inst.installmentId },
-            }),
-        )
-        .map((inst) => ({
-          installmentId: inst.installmentId,
-          amount: inst.amount,
+      const bulkPayments = existingPayments
+        .filter((entry) => !entry.isPaid)
+        .map((entry) => ({
+          installmentId: entry.installment.installmentId,
+          amount: entry.installment.amount,
           paymentMethod: data.paymentMethod,
           userId,
           paidAt: new Date(),
@@ -93,7 +97,6 @@ export class PaymentsService {
       await this.paymentModel.bulkCreate(
         bulkPayments as CreationAttributes<Payment>[],
       );
-
       this.logger.log(`All remaining installments have been paid.`);
     } else {
       await this.paymentModel.create({
@@ -127,5 +130,12 @@ export class PaymentsService {
     }
 
     return { message: 'Payment processed successfully' };
+  }
+
+  async getPaymentsByUser(userId: number) {
+    return this.paymentModel.findAll({
+      where: { userId },
+      order: [['paidAt', 'DESC']],
+    });
   }
 }

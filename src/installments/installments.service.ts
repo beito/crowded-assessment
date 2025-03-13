@@ -53,7 +53,7 @@ export class InstallmentsService {
 
   private generateDueDates(count: number): Date[] {
     const dates: Date[] = [];
-    let currentDate = new Date();
+    const currentDate = new Date();
     for (let i = 0; i < count; i++) {
       currentDate.setMonth(currentDate.getMonth() + 1);
       dates.push(new Date(currentDate));

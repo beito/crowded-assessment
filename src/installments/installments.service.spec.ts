@@ -31,7 +31,10 @@ describe('InstallmentsService', () => {
       providers: [
         InstallmentsService,
         { provide: getModelToken(Installment), useValue: mockInstallmentModel },
-        { provide: getModelToken(InstallmentPlan), useValue: mockInstallmentPlanModel },
+        {
+          provide: getModelToken(InstallmentPlan),
+          useValue: mockInstallmentPlanModel,
+        },
       ],
     }).compile();
 
@@ -70,7 +73,9 @@ describe('InstallmentsService', () => {
   });
 
   it('should throw BadRequestException if installment data is invalid', async () => {
-    await expect(service.createInstallment({} as any)).rejects.toThrow(BadRequestException);
+    await expect(service.createInstallment({} as any)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should return all installment plans', async () => {
@@ -85,7 +90,9 @@ describe('InstallmentsService', () => {
   });
 
   it('should return only completed installment plans', async () => {
-    mockInstallmentPlanModel.findAll.mockResolvedValueOnce([{ installmentPlanId: 2, isPaid: true }]);
+    mockInstallmentPlanModel.findAll.mockResolvedValueOnce([
+      { installmentPlanId: 2, isPaid: true },
+    ]);
 
     const result = await service.getCompletedInstallments();
 

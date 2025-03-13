@@ -12,15 +12,20 @@ export class AuthController {
   async login(@Body() body: LoginDto) {
     this.logger.log(`Login attempt for email: ${body.email}`);
 
-    const { error, value } = LoginDtoSchema.validate(body);
-    if (error) {
-      this.logger.warn(`Validation failed: ${JSON.stringify(error.details)}`);
-      return { message: 'Invalid input', details: error.details };
+    const validationResult = LoginDtoSchema.validate(body);
+    if (validationResult.error) {
+      this.logger.warn(
+        `Validation failed: ${JSON.stringify(validationResult.error.details)}`,
+      );
+      return {
+        message: 'Invalid input',
+        details: validationResult.error.details,
+      };
     }
 
     const user: AuthenticatedUser = await this.authService.validateUser(
-      value.email,
-      value.password,
+      validationResult.value.email,
+      validationResult.value.password,
     );
     return this.authService.login(user);
   }

@@ -13,6 +13,13 @@ import {
   CreateInstallmentDto,
 } from './dtos/create-installment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    userId: number;
+  };
+}
 
 @Controller('installments')
 export class InstallmentsController {
@@ -22,15 +29,23 @@ export class InstallmentsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createInstallment(@Body() body: CreateInstallmentDto, @Request() req) {
+  async createInstallment(
+    @Body() body: CreateInstallmentDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     this.logger.log(
       `Received request to create installment: ${JSON.stringify(body)}`,
     );
 
-    const { error, value } = CreateInstallmentDtoSchema.validate(body);
-    if (error) {
-      this.logger.warn(`Validation failed: ${JSON.stringify(error.details)}`);
-      return { message: 'Invalid data', details: error.details };
+    const validationResult = CreateInstallmentDtoSchema.validate(body);
+    if (validationResult.error) {
+      this.logger.warn(
+        `Validation failed: ${JSON.stringify(validationResult.error.details)}`,
+      );
+      return {
+        message: 'Invalid data',
+        details: validationResult.error.details,
+      };
     }
 
     const userId = req.user?.userId;
@@ -40,7 +55,10 @@ export class InstallmentsController {
     }
 
     this.logger.log(`Extracted userId from token: ${userId}`);
-    return this.installmentsService.createInstallment({ ...value, userId });
+    return this.installmentsService.createInstallment({
+      ...validationResult.value,
+      userId,
+    });
   }
 
   @UseGuards(JwtAuthGuard)

@@ -51,6 +51,9 @@ describe('AuthService', () => {
     const token = await service.login({ userId: 1, email: 'test@example.com' });
 
     expect(token).toEqual({ access_token: 'mocked_token' });
-    expect(mockJwtService.sign).toHaveBeenCalledWith({ sub: 1, email: 'test@example.com' });
+    expect(mockJwtService.sign).toHaveBeenCalledWith({
+      sub: 1,
+      email: 'test@example.com',
+    });
   });
 });
